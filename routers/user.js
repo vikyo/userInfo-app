@@ -7,13 +7,13 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/User');
 
-//@route  POST api/users
+//@route  POST api/user
 //@desc   Register an user
 //@access PUBLIC
 router.post(
     '/',
     [
-        check('name', 'Name is required')
+        check('ownerName', 'owner name is required')
             .not()
             .isEmpty(),
         // username must be an email
@@ -30,13 +30,13 @@ router.post(
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-        const { name, email, password, mobileNumber } = req.body;
+        const { ownerName, email, password, mobileNumber } = req.body;
         try {
             let user = await User.findOne({ email });
-            console.log(user);
+
             if (user) return res.status(400).json({ msg: 'User already registered' });
 
-            user = new User({ name, email, password, mobileNumber });
+            user = new User({ ownerName, email, password, mobileNumber });
 
             // Encrypt the password
             const salt = await bcrypt.genSalt(10);
@@ -44,16 +44,16 @@ router.post(
 
             await user.save();
 
-            // Return the jsonwebtoken
+            // Creating the jwt payload
             const payload = {
                 user: {
                     id: user.id
                 }
             };
-
-            jwt.sign(payload, config.get('jstSecret'), { expiresIn: '7 days' }, (err, token) => {
+            // Send the jsonwebtoken
+            jwt.sign(payload, config.get('jwtSecret'), { expiresIn: '7 days' }, (err, token) => {
                 if (err) throw err;
-                res.json(token);
+                res.json({ token });
             });
         } catch (err) {
             console.log(err.message);

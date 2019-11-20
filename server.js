@@ -2,6 +2,8 @@ const express = require('express');
 
 const userRoute = require('./routers/user');
 const authRoute = require('./routers/auth');
+const saveUserDataRoute = require('./routers/userData');
+
 const connecToDataBase = require('./config/db');
 
 app = express();
@@ -22,6 +24,7 @@ app.get('/', (req, res) => {
 // Routes
 app.use('/api/user', userRoute);
 app.use('/api/auth', authRoute);
+app.use('/api/user/save', saveUserDataRoute);
 
 // Listen to port
 app.listen(PORT, () => {
