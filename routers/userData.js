@@ -16,7 +16,7 @@ router.post(
             check('name', 'Name is required')
                 .not()
                 .isEmpty(),
-            check('mobileNumber', 'Mobile number is required')
+            check('userMobileNumber', 'Mobile number is required')
                 .not()
                 .isEmpty()
         ]
@@ -27,27 +27,26 @@ router.post(
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { name, mobileNumber } = req.body;
-        const dataObject = {};
-        dataObject.ownerId = req.user.id; // req.user.id is from JWT token payload
-
-        if (name) dataObject.name = name;
-        if (mobileNumber) dataObject.mobileNumber = mobileNumber;
+        const { name, userMobileNumber } = req.body;
+        const completeDataObject = { ownerId: req.user.id, userData: [{ name, userMobileNumber }] };
+        // console.log(completeDataObject);
 
         try {
-            let userData = await UserData.findOne({ ownerId: req.user.id });
+            let userDataItem = await UserData.findOne({ ownerId: req.user.id });
 
-            // // If the data is already present , then update the saved data
-            // if (userData) {
-            //     userData = await UserData.findOneAndUpdate({ ownerId: req.user.id }, { $set: dataObject }, { new: true });
+            // If the owner already entered some data, then push into the existing userData array
+            if (userDataItem && userDataItem.userData.length !== 0) {
+                userDataItem.userData.unshift({ name, userMobileNumber });
 
-            //     return res.json(userData);
-            // }
+                await userDataItem.save();
+                return res.json(userDataItem);
+            }
 
-            userData = new UserData(dataObject);
+            // If owner is entering user data for first time
+            userDataItem = new UserData(completeDataObject);
 
-            await userData.save();
-            res.json(userData);
+            await userDataItem.save();
+            res.json(userDataItem);
         } catch (err) {
             console.log('Error:--', err.message);
             res.status(500).send('Server error');

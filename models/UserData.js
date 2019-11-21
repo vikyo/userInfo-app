@@ -5,17 +5,21 @@ const UserDataSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
     },
-    name: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    mobileNumber: {
-        type: Number,
-        required: true,
-        trim: true,
-        unique: true
-    }
+    userData: [
+        {
+            name: {
+                type: String,
+                required: true,
+                trim: true
+            },
+            userMobileNumber: {
+                type: Number,
+                required: true,
+                trim: true,
+                unique: true
+            }
+        }
+    ]
 });
 
 module.exports = UserData = mongoose.model('userData', UserDataSchema);
