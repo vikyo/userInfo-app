@@ -25,6 +25,7 @@ app.get('/', (req, res) => {
 app.use('/api/user', userRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/user/save', saveUserDataRoute);
+app.use('/api/user', saveUserDataRoute);
 
 // Listen to port
 app.listen(PORT, () => {
